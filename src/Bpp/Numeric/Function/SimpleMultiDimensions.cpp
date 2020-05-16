@@ -99,18 +99,18 @@ double SimpleMultiDimensions::doStep()
     double t = std::max(0.000001, std::min(std::abs(v), getStopCondition()->getTolerance()));
     if (optimizer_.getBracketing() == BrentOneDimension::BRACKET_INWARD)
     {
-      const Constraint* parameterConstraints = getParameters()[i].getConstraint();
-      IntervalConstraint* parameterIntervals = dynamic_cast<IntervalConstraint*>(parameterConstraints->clone());
+      std::shared_ptr<Constraint> parameterConstraints = getParameters()[i].getConstraint();
+      std::shared_ptr<IntervalConstraint> parameterIntervals = std::dynamic_pointer_cast<IntervalConstraint>(parameterConstraints);
       double lowerBound = parameterIntervals->getLowerBound();
       double upperBound = parameterIntervals->getUpperBound();
       optimizer_.setInitialInterval(lowerBound, upperBound);
-      delete parameterIntervals;
+      
     }
     else
     {
       optimizer_.setInitialInterval(v - t, v + t);
     }
-    optimizer_.init(getParameters().subList(i));
+    optimizer_.init(getParameters().createSubList(i));
 
 
     // Optimize through this dimension:
