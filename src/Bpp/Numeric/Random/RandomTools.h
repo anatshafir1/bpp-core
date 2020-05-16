@@ -102,6 +102,14 @@ namespace bpp
      * @param generator Random number generator to use.
      */
     static double giveRandomNumberBetweenZeroAndEntry(double entry, const RandomFactory& generator = *DEFAULT_GENERATOR);
+    /**
+     * @brief Get a double random value (between lowerBound and upperBound).
+     *
+     * Note : the number you get is between lowerBound and upperBound not including upperBound !
+     * @param lowerBound The minimum bound for the random number to be generated
+     * @param upperBound Max number to reach.
+     */
+    static double giveRandomNumberBetweenTwoPoints(double lowerBound, double upperBound);
 
     /**
      * @brief Get a boolean random value.

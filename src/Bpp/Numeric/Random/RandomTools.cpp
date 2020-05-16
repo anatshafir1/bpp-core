@@ -65,6 +65,11 @@ double RandomTools::giveRandomNumberBetweenZeroAndEntry(double entry, const Rand
   double tm = generator.drawNumber();
   return tm * entry;
 }
+// Method to get a double between minimum and maximum
+double RandomTools::giveRandomNumberBetweenTwoPoints(double lowerBound, double upperBound){
+  double rand = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(upperBound-lowerBound);
+  return rand + lowerBound;
+}
 
 // Method to get a boolean random value
 bool RandomTools::flipCoin(const RandomFactory& generator)
