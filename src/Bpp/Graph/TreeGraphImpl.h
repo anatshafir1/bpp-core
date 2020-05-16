@@ -116,7 +116,7 @@ namespace bpp
      * @return the father node
      */
 
-    Graph::NodeId getFather(Graph::NodeId nodeid) const;
+    Graph::NodeId getFatherOfNode(Graph::NodeId nodeid) const;
 
     /**
      * Get the branch leading to the father in a rooted tree
@@ -244,6 +244,15 @@ namespace bpp
 
     std::vector<Graph::NodeId> getNodePathBetweenTwoNodes(Graph::NodeId nodeA, Graph::NodeId nodeB, bool includeAncestor = true) const;
     std::vector<Graph::EdgeId> getEdgePathBetweenTwoNodes(Graph::NodeId nodeA, Graph::NodeId nodeB) const;
+
+    
+    /*
+     * @bref Compute the MRCA of the gven nodes
+     *
+     */
+
+    Graph::NodeId MRCA(const std::vector<Graph::NodeId>& nodes) const;
+    
   };
 
 
@@ -268,7 +277,7 @@ namespace bpp
   }
 
   template<class GraphImpl>
-  Graph::NodeId TreeGraphImpl<GraphImpl>::getFather(Graph::NodeId node) const
+  Graph::NodeId TreeGraphImpl<GraphImpl>::getFatherOfNode(Graph::NodeId node) const
   {
     std::vector<Graph::NodeId> incomers = getIncomingNeighbors(node);
     if (incomers.size() > 1)
@@ -281,7 +290,7 @@ namespace bpp
   template<class GraphImpl>
   Graph::EdgeId TreeGraphImpl<GraphImpl>::getEdgeToFather(Graph::NodeId node) const
   {
-    Graph::NodeId father = getFather(node);
+    Graph::NodeId father = getFatherOfNode(node);
     return GraphImpl::getEdge(father, node);
   }
 
@@ -375,7 +384,7 @@ namespace bpp
   {
     if (hasFather(node))
     {
-      NodeId father = getFather(node);
+      NodeId father = getFatherOfNode(node);
       propagateDirection_(father);
       GraphImpl::switchNodes(father, node);
     }
@@ -385,7 +394,7 @@ namespace bpp
   void TreeGraphImpl<GraphImpl>::setFather(Graph::NodeId node, Graph::NodeId fatherNode)
   {
     if (hasFather(node))
-      GraphImpl::unlink(getFather(node), node);
+      GraphImpl::unlink(getFatherOfNode(node), node);
     GraphImpl::link(fatherNode, node);
     topologyHasChanged_();
   }
@@ -394,7 +403,7 @@ namespace bpp
   void TreeGraphImpl<GraphImpl>::setFather(Graph::NodeId node, Graph::NodeId fatherNode, Graph::EdgeId edgeId)
   {
     if (hasFather(node))
-      GraphImpl::unlink(getFather(node), node);
+      GraphImpl::unlink(getFatherOfNode(node), node);
     GraphImpl::link(fatherNode, node, edgeId);
     topologyHasChanged_();
   }
@@ -497,7 +506,7 @@ namespace bpp
     mustBeRooted_();
     deleteNode(GraphImpl::getRoot());
 
-    Graph::NodeId newRoot = GraphImpl::createNodeFromEdge(getEdge(getFather(newOutGroup), newOutGroup));
+    Graph::NodeId newRoot = GraphImpl::createNodeFromEdge(getEdge(getFatherOfNode(newOutGroup), newOutGroup));
     rootAt(newRoot);
   }
 
@@ -514,7 +523,7 @@ namespace bpp
     while (hasFather(nodeUp))
     {
       pathMatrix1.push_back(nodeUp);
-      nodeUp = getFather(nodeUp);
+      nodeUp = getFatherOfNode(nodeUp);
     }
     pathMatrix1.push_back(nodeUp); // The root.
 
@@ -522,7 +531,7 @@ namespace bpp
     while (hasFather(nodeUp))
     {
       pathMatrix2.push_back(nodeUp);
-      nodeUp = getFather(nodeUp);
+      nodeUp = getFatherOfNode(nodeUp);
     }
     pathMatrix2.push_back(nodeUp); // The root.
     // Must check that the two nodes have the same root!!!
@@ -603,7 +612,70 @@ namespace bpp
       fillSubtreeMetEdges_(metEdges, GraphImpl::getBottom(*currEdgeToSon));
     }
   }
-}
 
+  template<class GraphImpl>
+  Graph::NodeId TreeGraphImpl<GraphImpl>::MRCA(const std::vector<Graph::NodeId>& nodes) const
+  {
+    mustBeRooted_();
+
+    size_t nbnodes=nodes.size();
+    
+    if (nbnodes==0)
+      throw getRoot();
+    
+    if (nbnodes==1)
+      return nodes[0];
+
+    // Total counts
+    std::map<Graph::NodeId, uint> counts;
+
+    // Forward counts
+    auto fathers = std::make_shared<std::map<Graph::NodeId, uint>>();
+    auto sons = std::make_shared<std::map<Graph::NodeId, uint>>();
+    
+    for (auto nodeid:nodes)
+    {
+      counts[nodeid]=1;
+      (*sons)[nodeid]=1;
+    }
+    
+    while (sons->size()>1)
+    {
+      // From sons to fqthers
+      for (auto son:(*sons))
+      {
+        if (!hasFather(son.first))
+          continue;
+        
+        auto here=getFatherOfNode(son.first);
+
+        if (fathers->find(here)==fathers->end())
+          (*fathers)[here]=son.second;
+        else
+          (*fathers)[here]+=son.second;
+      }
+
+      // add fathers in counts
+      for (auto father:*(fathers))
+      {
+        if (counts.find(father.first)==counts.end())
+          counts[father.first]=father.second;
+        else
+          counts[father.first]+=father.second;
+
+        if (counts[father.first]==nbnodes)
+          return father.first;
+      }
+
+      auto temp=sons;
+      sons=fathers;
+      fathers=temp;
+      fathers->clear();
+    }
+
+    return sons->begin()->first;
+  }
+  
+}
 
 #endif

@@ -79,21 +79,35 @@ public:
    */
 
   template<class A, class B>
-  static B* copy(const A& a, typename std::enable_if< !std::is_base_of<B, A>::value&& !std::is_abstract<B>::value>::type* = 0)
+  static B* copy(const A& a, typename std::enable_if< !std::is_base_of<B, A>::value&& !std::is_abstract<B>::value, B*>::type* = 0)
   {
     return new B(a);
   }
 
   template<class A, class B>
-  static B* copy(const A& a, typename std::enable_if< std::is_base_of<B, A>::value&& !std::is_abstract<A>::value>::type* = 0)
+  static B* copy(const A& a, typename std::enable_if< !std::is_base_of<B, A>::value&& std::is_abstract<B>::value, B*>::type* = 0)
+  {
+    throw Exception("Unknow AssociationGraphObserver::copy(const A& a, typename std::enable_if< !std::is_base_of<B, A>::value&& std::is_abstract<B>::value, B*>::type* = 0)");
+    return 0;
+  }
+
+  template<class A, class B>
+  static B* copy(const A& a, typename std::enable_if< std::is_base_of<B, A>::value&& !std::is_abstract<A>::value, B*>::type* = 0)
   {
     return dynamic_cast<B*>(new A(a));
   }
 
   template<class A, class B>
-  static B* copy(const A& a, typename std::enable_if< std::is_base_of<B, A>::value&& std::is_abstract<A>::value&& std::is_base_of<Clonable, A>::value>::type* = 0)
+  static B* copy(const A& a, typename std::enable_if< std::is_base_of<B, A>::value&& std::is_abstract<A>::value&& std::is_base_of<Clonable, A>::value, B*>::type* = 0)
   {
     return dynamic_cast<B*>(a.clone());
+  }
+
+  template<class A, class B>
+  static B* copy(const A& a, typename std::enable_if< std::is_base_of<B, A>::value&& std::is_abstract<A>::value && !std::is_base_of<Clonable, A>::value, B*>::type* = 0)
+  {
+    throw Exception("Unknow AssociationGraphObserver::copy(const A& a, typename std::enable_if< std::is_base_of<B, A>::value&& std::is_abstract<A>::value && !std::is_base_of<Clonable, A>::value, B*>::type*= 0)");
+    return 0;
   }
 
 
@@ -227,8 +241,8 @@ public:
    * @brief return if the object has an index.
    */
 
-  virtual bool hasIndex(const std::shared_ptr<N> nodeObject) const = 0;
-  virtual bool hasIndex(const std::shared_ptr<E> edgeObject) const = 0;
+  virtual bool hasNodeIndex(const std::shared_ptr<N> nodeObject) const = 0;
+  virtual bool hasEdgeIndex(const std::shared_ptr<E> edgeObject) const = 0;
 
   /**
    * Return the associated Node index
@@ -265,19 +279,33 @@ public:
   virtual EdgeIndex setEdgeIndex(const std::shared_ptr<E>  edgeObject, EdgeIndex index) = 0;
 
   /**
+   * Return if the Graph has a node matching nodeIndex
+   * @param nodeIndex the index of the wanted node
+   */
+
+  virtual bool hasNode(NodeIndex nodeIndex) const = 0;
+
+  /**
+   * Return if the Graph has an edge matching edgeIndex
+   * @param edgeIndex the index of the wanted edge
+   */
+
+  virtual bool hasEdge(EdgeIndex edgeIndex) const = 0;
+
+  /**
    * Return the associated Node, querying with an index
    * @param nodeIndex the index of the wanted node
    * @return N, a node object
    */
 
-  virtual std::shared_ptr<N>  getNode(NodeIndex nodeIndex) const = 0;
+  virtual std::shared_ptr<N> getNode(NodeIndex nodeIndex) const = 0;
 
   /**
    * Return the associated Node index
    * @param edgeIndex the index of the wanted edge
    * @return E, an edge object
    */
-  virtual std::shared_ptr<E>  getEdge(EdgeIndex edgeIndex) const = 0;
+  virtual std::shared_ptr<E> getEdge(EdgeIndex edgeIndex) const = 0;
 
   // /@}
 

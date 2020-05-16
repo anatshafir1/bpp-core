@@ -123,7 +123,7 @@ class ReparametrizationFunctionWrapper:
       matchParametersValues(parameters);
       //We only set parameters that have been changed:
 //      functionParameters_.printParameters(std::cout);
-      function_->setParameters(functionParameters_.subList(parameters.getParameterNames()));
+      function_->setParameters(functionParameters_.createSubList(parameters.getParameterNames()));
     }
 
     double getValue() const
@@ -241,7 +241,7 @@ class ReparametrizationDerivableSecondOrderWrapper:
     double getSecondOrderDerivative(const std::string& variable) const
     {
       return dynamic_cast<const DerivableSecondOrder&>(getFunction()).getSecondOrderDerivative(variable)
-           * pow(dynamic_cast<const TransformedParameter&>(getParameter(variable)).getFirstOrderDerivative(), 2)
+           * std::pow(dynamic_cast<const TransformedParameter&>(getParameter(variable)).getFirstOrderDerivative(), 2)
            + dynamic_cast<const DerivableSecondOrder&>(getFunction()).getFirstOrderDerivative(variable)
            * dynamic_cast<const TransformedParameter&>(getParameter(variable)).getSecondOrderDerivative();
     }

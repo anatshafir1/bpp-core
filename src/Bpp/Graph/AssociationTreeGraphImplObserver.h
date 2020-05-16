@@ -178,9 +178,9 @@ public:
    * @return the father
    */
 
-  std::shared_ptr<N>  getFather(const std::shared_ptr<N>  nodeObject) const
+  std::shared_ptr<N>  getFatherOfNode(const std::shared_ptr<N>  nodeObject) const
   {
-    return this->getNodeFromGraphid(this->getGraph()->getFather(this->getNodeGraphid(nodeObject)));
+    return this->getNodeFromGraphid(this->getGraph()->getFatherOfNode(this->getNodeGraphid(nodeObject)));
   }
 
   /**
@@ -250,12 +250,12 @@ public:
    * @return the father Node
    */
 
-  std::shared_ptr<N> getFather(const std::shared_ptr<E>  edge) const
+  std::shared_ptr<N> getFatherOfEdge(const std::shared_ptr<E>  edge) const
   {
     return this->getNodeFromGraphid(this->getGraph()->getTop(this->getEdgeGraphid(edge)));
   }
 
-  NodeIndex getFather(const EdgeIndex edge) const
+  NodeIndex getFatherOfEdge(const EdgeIndex edge) const
   {
     return this->getNodeIndex(this->getNodeFromGraphid(this->getGraph()->getTop(this->getEdgeGraphid(this->getEdge(edge)))));
   }
@@ -283,6 +283,10 @@ public:
     return this->getNodesFromGraphid(this->getGraph()->getLeavesUnderNode(this->getNodeGraphid(node)));
   }
 
+  std::vector<NodeIndex> getLeavesUnderNode(NodeIndex node) const
+  {
+    return this->getNodeIndexes(getLeavesUnderNode(this->getNode(node)));
+  }
 
   /**
    * Remove the sons of a node
@@ -388,6 +392,16 @@ public:
     return this->getEdgesFromGraphid(this->getGraph()->getEdgePathBetweenTwoNodes(this->getNodeGraphid(nodeA), this->getNodeGraphid(nodeB)));
   }
 
+  std::vector<NodeIndex> getNodePathBetweenTwoNodes(const NodeIndex nodeA, const NodeIndex nodeB, bool includeAncestor = true) const
+  {
+    return getNodeIndexes(getNodePathBetweenTwoNodes(this->getNode(nodeA), this->getNode(nodeB), includeAncestor));
+  }
+ 
+  std::vector<EdgeIndex> getEdgePathBetweenTwoNodes(const NodeIndex nodeA, const NodeIndex nodeB, bool includeAncestor = true) const
+  {
+    return getEdgeIndexes(getEdgePathBetweenTwoNodes(this->getNode(nodeA), this->getNode(nodeB), includeAncestor));
+  }
+
   std::vector<std::shared_ptr<N> > getSubtreeNodes(const std::shared_ptr<N> localRoot)
   {
     return this->getNodesFromGraphid(this->getGraph()->getSubtreeNodes(this->getNodeGraphid(localRoot)));
@@ -397,6 +411,32 @@ public:
   {
     return AssociationGraphImplObserver<N, E, TreeGraphImpl>::getEdgesFromGraphid(this->getGraph()->getSubtreeEdges(this->getNodeGraphid(localRoot)));
   }
+
+  std::vector<NodeIndex> getSubtreeNodes(const NodeIndex localRoot) const
+  {
+    return getNodeIndexes(getSubtreeNodes(this->getNode(localRoot)));
+  }
+
+  std::vector<EdgeIndex> getSubtreeEdges(const EdgeIndex localRoot) const
+  {
+    return getEdgeIndexes(getSubtreeEdges(this->getEdge(localRoot)));
+  }
+
+  /**
+   * Return, in a rooted tree, the MRCA node of a vector of nodes
+   * @param vNodeObject the vector of concerned nodes
+   * @return the MRCA
+   */
+
+  std::shared_ptr<N>  MRCA(const std::vector<std::shared_ptr<N>>  vNodeObject) const
+  {
+    std::vector<Graph::NodeId> vNid(vNodeObject.size());
+    
+    std::transform(vNodeObject.begin(), vNodeObject.end(), vNid.begin(), [this](const std::shared_ptr<N>& nodeObject){return this->getNodeGraphid(nodeObject);});
+    
+    return this->getNodeFromGraphid(this->getGraph()->MRCA(vNid));
+  }
+
 };
 
 /********************/

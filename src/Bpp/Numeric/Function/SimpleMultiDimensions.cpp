@@ -112,6 +112,7 @@ double SimpleMultiDimensions::doStep()
     }
     optimizer_.init(getParameters().subList(i));
 
+
     // Optimize through this dimension:
     f = optimizer_.optimize();
     if (getVerbose() > 0) cout << endl;

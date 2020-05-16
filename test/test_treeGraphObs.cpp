@@ -48,7 +48,9 @@ using namespace std;
 
 int main() {
   AssociationTreeGlobalGraphObserver<string,unsigned int> grObs(true);
-  
+
+  AssociationTreeGlobalGraphObserver<unsigned int,unsigned int> grObs2(true);
+
   shared_ptr<string> zero(new string("zero"));
   shared_ptr<string> one(new string("one"));
   shared_ptr<string> two(new string("two"));
@@ -67,7 +69,7 @@ int main() {
   grObs.link(zero,one,r2);
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
   cout << "The father branch of zero is " << *(grObs.getEdgeToFather(one)) << endl;
-  cout << "The father node of one is " << *(grObs.getFather(one)) << endl;
+  cout << "The father node of one is " << *(grObs.getFatherOfNode(one)) << endl;
   
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
   
@@ -75,17 +77,17 @@ int main() {
   cout << "Creating node two from the number one." << endl;
   grObs.createNode(one,two);
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
-  cout << "Linking two to zero." << endl;
-  grObs.link(two,zero,r3);
-  grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");  
   cout << "Linking one to three and two to four." << endl;
   grObs.createNode(one,three);
   grObs.createNode(two,four,r1);
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
   
-  cout << "Linking three to zero." << endl;
+  cout << endl << "------------------------------------------" << endl << endl;
+
+  cout << "Linking two and three to zero." << endl;
+  grObs.link(two,zero,r3);
   grObs.link(three,zero);
-  grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
+  grObs.getGraph()->outputToDot(std::cout,"myTestDirGraph");
 
   vector<shared_ptr<string> > fromOne = grObs.getOutgoingNeighbors(zero);
   vector<shared_ptr<string> > fromThree = grObs.getOutgoingNeighbors(two);
@@ -144,10 +146,13 @@ int main() {
   grObs.link(five,two);
 
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
-  
+  grObs.outputToDot(std::cout,"myTestDirGrObs");
+
   cout << "Is this a tree?\n    " << (grObs.isValid()? "TRUE":"FALSE") << endl;
   // the tree is not valid at this point
   test &= !grObs.isValid();
+
+  cout << endl << "------------------------------------------" << endl << endl;
 
   cout << "Reroot on one" << endl;
 
@@ -164,6 +169,9 @@ int main() {
   }
 
   grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
+  grObs.outputToDot(std::cout,"myTestDirGrObs");
+
+  cout << endl << "------------------------------------------" << endl << endl;
   
   cout << "Linking 3->2"<< endl;
   grObs.link(three, two);
@@ -171,6 +179,37 @@ int main() {
   cout << "Is this a tree?\n    " << (grObs.isValid()? "TRUE":"FALSE") << endl;
   // the tree must be considered as unvalid at this point
   test &= !grObs.isValid();
+
+  cout << endl << "------------------------------------------" << endl << endl;
+
+  cout << "Remove a branch between 1 & 3" << endl;
+  grObs.unlink(one, three);
+  grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
+  cout << "Is this a tree?\n    " << (grObs.isValid()? "TRUE":"FALSE") << endl;
+  // the tree must be considered as unvalid at this point
+  test &= !grObs.isValid();
+
+  cout << endl << "------------------------------------------" << endl << endl;
+
+  cout << "Reroot on one" << endl;
+
+  grObs.getGraph()->makeUndirected();
+  grObs.rootAt(one);
+  grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
+  cout << "Is this a tree?\n    " << (grObs.isValid()? "TRUE":"FALSE") << endl << endl;
+  // the tree must be considered as valid at this point
+  test &= grObs.isValid();
+  
+  cout << "MRCA of 3 and 4: " << *grObs.MRCA({three, four})  << endl;
+  cout << "MRCA of 3 and 0: " << *grObs.MRCA({three, zero})  << endl;
+  
+
+  cout << endl << "------------------------------------------" << endl << endl;
+
+  cout << "Reroot on two" << endl;
+
+  grObs.rootAt(two);
+  grObs.getGraph()->outputToDot(std::cout,"myTestDirGrObs");
   
   cout << "Test " << (test? "passed":"failed") << endl;
 
