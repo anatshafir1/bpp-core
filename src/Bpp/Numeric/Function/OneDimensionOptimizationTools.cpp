@@ -155,6 +155,22 @@ Bracket OneDimensionOptimizationTools::bracketMinimum(
   }
   return bracket;
 }
+/******************************************************************************/
+Bracket OneDimensionOptimizationTools::setSimpleBracketing(double a, double c, Function* function, ParameterList parameters){
+  Bracket bracket;
+  bracket.a.x = a;
+  bracket.b.x = parameters[0].getValue();
+  bracket.c.x = c;
+  bracket.b.f = function->f(parameters);
+  while (std::isnan(bracket.b.f)|| std::isinf(bracket.b.f))
+  {
+    bracket.b.x /= 1.1;
+    parameters[0].setValue(bracket.b.x); bracket.b.f = function->f(parameters);
+  }
+  parameters[0].setValue(bracket.a.x); bracket.a.f = function->f(parameters);
+  parameters[0].setValue(bracket.c.x); bracket.c.f = function->f(parameters);
+  return bracket;
+}
 
 /******************************************************************************/
 

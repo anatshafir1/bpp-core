@@ -93,9 +93,12 @@ void BrentOneDimension::doInit(const ParameterList& params)
   {
     bracket = OneDimensionOptimizationTools::bracketMinimum(_xinf, _xsup, getFunction(), getParameters()); 
   }
-  else
+  else if (bracketing_ == BrentOneDimension::BRACKET_INWARD)
   {
     bracket = OneDimensionOptimizationTools::inwardBracketMinimum(_xinf, _xsup, getFunction(), getParameters());
+  }else{
+    bracket = OneDimensionOptimizationTools::setSimpleBracketing(_xinf, _xsup, getFunction(), getParameters());
+
   }
   
   if (getVerbose() > 0)
@@ -148,7 +151,7 @@ double BrentOneDimension::doStep()
 {
   xm   = 0.5 * (a + b);
   tol2 = 2.0 * (tol1 = getStopCondition()->getTolerance() * NumTools::abs(x) + ZEPS);
-  
+ 
   if(NumTools::abs(e) > tol1)
   {
     r = (x - w) * (fx - fv);

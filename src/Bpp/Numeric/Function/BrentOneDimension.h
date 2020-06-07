@@ -80,7 +80,8 @@ class BrentOneDimension:
 		enum Bracketing
     {
         BRACKET_OUTWARD = 0,
-        BRACKET_INWARD = 1
+        BRACKET_INWARD = 1,
+		BRACKET_SIMPLE = 2
     };
 	
 	friend class BODStopCondition;
