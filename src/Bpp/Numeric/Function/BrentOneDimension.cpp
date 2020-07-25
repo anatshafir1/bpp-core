@@ -151,7 +151,9 @@ double BrentOneDimension::doStep()
 {
   xm   = 0.5 * (a + b);
   tol2 = 2.0 * (tol1 = getStopCondition()->getTolerance() * NumTools::abs(x) + ZEPS);
- 
+  if (fabs(x-xm) <= (tol2 - 0.5*(b-a))){
+    return fx;
+  }
   if(NumTools::abs(e) > tol1)
   {
     r = (x - w) * (fx - fv);
@@ -177,6 +179,10 @@ double BrentOneDimension::doStep()
     d = NumConstants::GOLDEN_RATIO_C() * (e = (x >= xm ? a - x : b - x));
   }
   u = (NumTools::abs(d) >= tol1 ? x + d : x + NumTools::sign(tol1, d));
+  // Check that the suggested u is not out of bounds
+  if ((u < a) || (u > b)){
+    throw Exception("BrentOneDimension: the proposed u is out of bounds of either a or b!");
+  }
 
   // Function evaluaton:
   ParameterList pl = getParameters();
