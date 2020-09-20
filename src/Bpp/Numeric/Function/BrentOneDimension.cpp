@@ -69,7 +69,7 @@ double BrentOneDimension::BODStopCondition::getCurrentTolerance() const
 BrentOneDimension::BrentOneDimension(Function* function) :
   AbstractOptimizer(function),
   a(0), b(0), d(0), e(0), etemp(0), fu(0), fv(0), fw(0), fx(0), p(0), q(0), r(0), tol1(0), tol2(0),
-  u(0), v(0), w(0), x(0), xm(0), _xinf(0), _xsup(0), isInitialIntervalSet_(false), bracketing_(BrentOneDimension::BRACKET_OUTWARD)
+  u(0), v(0), w(0), x(0), xm(0), _xinf(0), _xsup(0), isInitialIntervalSet_(false), bracketing_(BrentOneDimension::BRACKET_OUTWARD), intervalsNum_(10)
 {
   setDefaultStopCondition_(new BODStopCondition(this));
   setStopCondition(*getDefaultStopCondition());
@@ -95,7 +95,7 @@ void BrentOneDimension::doInit(const ParameterList& params)
   }
   else if (bracketing_ == BrentOneDimension::BRACKET_INWARD)
   {
-    bracket = OneDimensionOptimizationTools::inwardBracketMinimum(_xinf, _xsup, getFunction(), getParameters());
+    bracket = OneDimensionOptimizationTools::inwardBracketMinimum(_xinf, _xsup, getFunction(), getParameters(), intervalsNum_);
   }else{
     bracket = OneDimensionOptimizationTools::setSimpleBracketing(_xinf, _xsup, getFunction(), getParameters());
 
@@ -180,10 +180,21 @@ double BrentOneDimension::doStep()
   }
   u = (NumTools::abs(d) >= tol1 ? x + d : x + NumTools::sign(tol1, d));
   // Check that the suggested u is not out of bounds
-  if ((u < a) || (u > b)){
-    throw Exception("BrentOneDimension: the proposed u is out of bounds of either a or b!");
-  }
 
+  if ((u < _xinf) || (u > _xsup)){
+    if (bracketing_ == BRACKET_OUTWARD){
+      std::cerr << "WARNING!!! BrentOneDimension: the proposed u is out of the interval bounds!"<< std::endl;
+    }else{
+      if (bracketing_ == BRACKET_INWARD){
+        if ((a == b) && ((a == _xinf) || (a == _xsup))){
+          std::cerr << "WARINING!!! BrentOneDimension: The bounds are equal. Try to increase the number of intervals between a and b!" << std::endl;
+        }
+
+      }
+      throw Exception("BrentOneDimension: the proposed u is out of the interval bounds!");
+    }
+    
+  }
   // Function evaluaton:
   ParameterList pl = getParameters();
   pl[0].setValue(u);

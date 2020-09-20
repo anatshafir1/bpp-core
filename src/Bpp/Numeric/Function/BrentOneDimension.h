@@ -81,7 +81,7 @@ class BrentOneDimension:
     {
         BRACKET_OUTWARD = 0,
         BRACKET_INWARD = 1,
-		BRACKET_SIMPLE = 2
+		BRACKET_SIMPLE = 2	// a and b are the interval bounds and the first guess is the current value of the parameter
     };
 	
 	friend class BODStopCondition;
@@ -91,6 +91,7 @@ class BrentOneDimension:
 		double _xinf, _xsup;
     bool isInitialIntervalSet_;
 		Bracketing bracketing_;
+		uint intervalsNum_; // for inward bracketing
 
 	public:
 		BrentOneDimension(Function* function = 0);
@@ -154,7 +155,10 @@ class BrentOneDimension:
 				/**
 		 * @brief Set the brackeitng method
 		 */
-		void setBracketing(BrentOneDimension::Bracketing bracketing)  { bracketing_ = bracketing; }
+		void setBracketing(BrentOneDimension::Bracketing bracketing, uint intervalsNum = 10)  { 
+			bracketing_ = bracketing;
+			intervalsNum_ = intervalsNum;
+		}
 	
 	public:
 		
