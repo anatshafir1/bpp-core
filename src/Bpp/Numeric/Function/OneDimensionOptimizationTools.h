@@ -132,7 +132,7 @@ public:
   static Bracket setSimpleBracketing(double a, double c, Function* function, ParameterList parameters);
 
 
-  static unsigned int lineMinimization(DirectionFunction& f1dim, ParameterList& parameters, std::vector<double>& xi, double tolerance, OutputStream* profiler = 0, OutputStream* messenger = 0, unsigned int verbose = 2);
+  static unsigned int lineMinimization(DirectionFunction& f1dim, ParameterList& parameters, std::vector<double>& xi, double tolerance, OutputStream* profiler = 0, OutputStream* messenger = 0, unsigned int verbose = 2, int bracketing = 0);
 
   /**
    * @brief Search a 'sufficiently low' value for a function in a given direction.

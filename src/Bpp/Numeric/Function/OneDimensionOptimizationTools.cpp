@@ -228,7 +228,8 @@ unsigned int OneDimensionOptimizationTools::lineMinimization(
   double tolerance,
   OutputStream* profiler,
   OutputStream* messenger,
-  unsigned int verbose)
+  unsigned int verbose,
+  int bracketing)
 {
   // Initial guess for brackets:
   double ax = 0.;
@@ -238,6 +239,7 @@ unsigned int OneDimensionOptimizationTools::lineMinimization(
   f1dim.setMessageHandler(messenger);
   f1dim.init(parameters, xi);
   BrentOneDimension bod(&f1dim);
+  bod.setBracketing(static_cast <BrentOneDimension::Bracketing>(bracketing));
   bod.setMessageHandler(messenger);
   bod.setProfiler(profiler);
   bod.setVerbose(verbose >= 1 ? 1 : 0);

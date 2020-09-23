@@ -96,6 +96,13 @@ namespace bpp
 
     void getGradient(std::vector<double>& gradient) const;
 
+    //set Brent Optimizer so that line minimization will be able to use the
+    //different kinds of bracketing functions.
+    void setBrentOptimizer(BrentOneDimension::Bracketing bracketing) 
+    {
+      optimizer_.setBracketing(bracketing);
+    }
+
   protected:
     DerivableFirstOrder* getFunction_()
     {

@@ -83,7 +83,7 @@ double ConjugateGradientMultiDimensions::doStep()
   getFunction_()->enableFirstOrderDerivatives(false);
   nbEval_ += OneDimensionOptimizationTools::lineMinimization(f1dim_,
       getParameters_(), xi_, getStopCondition()->getTolerance(),
-      0, 0, getVerbose() > 0 ? getVerbose() - 1 : 0);
+      0, 0, getVerbose() > 0 ? getVerbose() - 1 : 0, static_cast<int>(optimizer_.getBracketing()));
 
   getFunction_()->enableFirstOrderDerivatives(true);
   f = getFunction()->f(getParameters());
