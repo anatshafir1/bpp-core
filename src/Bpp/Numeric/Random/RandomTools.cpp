@@ -65,6 +65,12 @@ double RandomTools::giveRandomNumberBetweenZeroAndEntry(double entry, const Rand
   double tm = generator.drawNumber();
   return tm * entry;
 }
+// Method to get a double random value between a specified minimum and maximum
+// Note : the number you get is between lowerBound and upperBound not including upperBound!
+double RandomTools::giveRandomNumberBetweenTwoPoints(double lowerBound, double upperBound){
+  double rand = giveRandomNumberBetweenZeroAndEntry(upperBound - lowerBound);
+  return rand + lowerBound;
+}
 
 // Method to get a boolean random value
 bool RandomTools::flipCoin(const RandomFactory& generator)
