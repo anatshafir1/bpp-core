@@ -122,6 +122,14 @@ public:
    * @return           A bracket object.
    */
   static Bracket inwardBracketMinimum(double a, double b, Function* function, ParameterList parameters, uint intervalsNum=10);
+    /**
+   * @brief Bracket a minimum by a search within the parameter's bounds, such that the first guess is the current assignment of the parameter value
+   * @param a, c       The interval bounds (in the doInit function in BrentOneDimension, the bound parameter b then gets the value of c)
+   * @param function   The function to bracket.
+   * @param parameters The parameter to use as a variable.
+   * @return           A bracket object.
+   */
+  static Bracket setSimpleBracketing(double a, double c, Function* function, ParameterList parameters);
 
 
   static unsigned int lineMinimization(DirectionFunction& f1dim, ParameterList& parameters, std::vector<double>& xi, double tolerance, OutputStream* profiler = 0, OutputStream* messenger = 0, unsigned int verbose = 2);

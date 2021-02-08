@@ -97,8 +97,21 @@ double SimpleMultiDimensions::doStep()
     // Re-init optimizer according to new values:
     double v = getParameters()[i].getValue();
     double t = std::max(0.000001, std::min(std::abs(v), getStopCondition()->getTolerance()));
-    optimizer_.setInitialInterval(v - t, v + t);
+    if (optimizer_.getBracketing() == BrentOneDimension::BRACKET_INWARD)
+    {
+      std::shared_ptr<Constraint> parameterConstraints = getParameters()[i].getConstraint();
+      std::shared_ptr<IntervalConstraint> parameterIntervals = std::dynamic_pointer_cast<IntervalConstraint>(parameterConstraints);
+      double lowerBound = parameterIntervals->getLowerBound();
+      double upperBound = parameterIntervals->getUpperBound();
+      optimizer_.setInitialInterval(lowerBound, upperBound);
+      
+    }
+    else
+    {
+      optimizer_.setInitialInterval(v - t, v + t);
+    }
     optimizer_.init(getParameters().createSubList(i));
+
 
     // Optimize through this dimension:
     f = optimizer_.optimize();
